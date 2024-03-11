@@ -1,13 +1,13 @@
-import io.qameta.allure.Description;
 import io.qameta.allure.junit4.DisplayName;
 import io.restassured.RestAssured;
+import methods.BaseHttpClient;
+import methods.UserMethods;
 import org.junit.Before;
 import org.junit.Test;
 import io.restassured.response.Response;
 import org.junit.After;
-
+import pojo.User;
 import static org.hamcrest.Matchers.*;
-import static constants.Url.URL_BURGERS;
 
 public class UserLoginTest {
     String email = "ivanovanastia_6@gmail.com";
@@ -19,11 +19,12 @@ public class UserLoginTest {
 
     @Before
     public void setUp() {
-        RestAssured.baseURI = URL_BURGERS;
+        RestAssured.requestSpecification = BaseHttpClient.baseRequestSpec();
 
         // Создание пользователя
         User user = new User(email, password, name);
-        Response responseAccessToken = user.createUser();
+        UserMethods userMethods = new UserMethods();
+        Response responseAccessToken = userMethods.createUser(user);
         responseAccessToken.then().assertThat().body("success", equalTo(true))
                 .and()
                 .statusCode(200);
@@ -34,7 +35,8 @@ public class UserLoginTest {
     @DisplayName("Логин под существующим пользователем,")
     public void loginUser() {
         User user = new User(email, password, name);
-        user.loginUser()
+        UserMethods userMethods = new UserMethods();
+        userMethods.loginUser(user)
                 .then().assertThat().body("success", equalTo(true))
                 .and()
                 .statusCode(200);
@@ -44,7 +46,8 @@ public class UserLoginTest {
     @DisplayName("Логин с неверным неверным логином и паролем")
     public void loginNonexistentUser() {
         User user = new User(incorrectEmail, incorrectPassword, name);
-        user.loginUser()
+        UserMethods userMethods = new UserMethods();
+        userMethods.loginUser(user)
                 .then().assertThat().body("message", equalTo("email or password are incorrect"))
                 .and()
                 .statusCode(401);
@@ -54,8 +57,8 @@ public class UserLoginTest {
     public void userDeletion() {
         // Отправляем DELETE-запрос на удаление пользователя
         try {
-            User user = new User(email, password, name);
-            user.deleteUser(accessToken);
+            UserMethods userMethods = new UserMethods();
+            userMethods.deleteUser(accessToken);
         } catch (Exception e) {
             System.out.println("Такого пользователя не существует - удаление невозможно.");
         }

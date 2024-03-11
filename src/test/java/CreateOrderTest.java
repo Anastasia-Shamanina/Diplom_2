@@ -40,7 +40,7 @@ public class CreateOrderTest {
 
     @Test
     @DisplayName("Создать заказ с авторизацией и ингредиентами")
-    public void createOrder1() {
+    public void createOrderWithTokenAndIngredients() {
         OrderMethods orderMethods = new OrderMethods();
         Response getIngredient = orderMethods.getIngredientsHash();
         List<String> ingredients = new ArrayList<>(getIngredient.then().log().all().statusCode(200).extract().path("data._id")); // Извлечение ID ингредиентов из ответа
@@ -54,7 +54,7 @@ public class CreateOrderTest {
 
     @Test
     @DisplayName("Создать заказ с авторизацией без ингредиентов")
-    public void createOrder2() {
+    public void createOrderWithTokenWithoutIngredients() {
         OrderMethods orderMethods = new OrderMethods();
         Order order = new Order(null);
         orderMethods.createOrder(order, accessToken)
@@ -66,7 +66,7 @@ public class CreateOrderTest {
     private static String incorrectHash = "12a34567b89";
     @Test
     @DisplayName("Создать заказ с авторизацией и неверным хешем")
-    public void createOrder3() {
+    public void createOrderWithTokenAndIncorrectHash() {
         List<String> ingredients = new ArrayList<>();
         ingredients.add(incorrectHash);
         Order order = new Order(ingredients);
@@ -79,7 +79,7 @@ public class CreateOrderTest {
     @Test
     @DisplayName("Создать заказ без авторизации")
     @Description("Тест падает потому что, нет проверки авторизации по этой ручке на стороне сервиса, уточнено у наставника, что можно оставить тест, возможно устарела дока.")
-    public void createOrder4() {
+    public void createOrderWithoutToken() {
         OrderMethods orderMethods = new OrderMethods();
         Response getIngredient = orderMethods.getIngredientsHash();
         List<String> ingredients = new ArrayList<>(getIngredient.then().log().all().statusCode(200).extract().path("data._id")); // Извлечение ID ингредиентов из ответа
